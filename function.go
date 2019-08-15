@@ -53,7 +53,9 @@ func ListJar(zipFile string) ([]string,error){
     //循环每个文件
     var s []string
     for _, file := range reader.File {
-        s=append(s,file.Name)
+        if !file.FileInfo().IsDir(){
+            s=append(s,file.Name)
+        }
     }
     return s,nil
 }
@@ -89,7 +91,20 @@ func ReadFormRC(rc io.ReadCloser) (*ClassFile,error){
     if err != nil{
        return nil,err
     }
-    err = c.Load(bs)               //从[]byte读取class内容
+    err = c.Load(bs)                //从[]byte读取class内容
+    if err != nil{
+       return nil,err
+    }
+    return &c,nil                   //返回类地址
+}
+//加载文件
+func ReadFormFile(file string) (*ClassFile,error){
+    c := ClassFile{}                //初始化内存数据结构
+    bs,err:= ioutil.ReadFile(file)  //一次读文件
+    if err != nil{
+       return nil,err
+    }
+    err = c.Load(bs)                //从[]byte读取class内容
     if err != nil{
        return nil,err
     }
