@@ -76,7 +76,7 @@ func (c *ClassFile) Load(bs  []byte) (err error){//用非匿名返回值，defer
                     cp.Info=bs[readflag+3:readflag+3+length]
                     readflag+=3+length
                     c.Constant_pool=append(c.Constant_pool,cp)
-                case 3:                                                        //CONSTANT_Class_info format
+                case 3:                                                        //CONSTANT_Integer_info format
                     cp.Info=bs[readflag+1:readflag+5]
                     readflag+=5
                     c.Constant_pool=append(c.Constant_pool,cp)

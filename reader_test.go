@@ -75,3 +75,59 @@ func TestAnalysisPower(t *testing.T){
     }
 
 }
+//测试byte转int
+func TestByte2int(t *testing.T){
+   if byte2int([]byte{0,1})!=1{
+       t.Fatal()
+   }
+   if byte2int(testc.Magic)!=3405691582{
+       t.Fatal()
+   }
+   if byte2int([]byte{0,1,1})!=257{
+       t.Fatal()
+   }
+   if byte2int([]byte{0,159})!=159{
+       t.Fatal()
+   }
+}
+//翻译常量
+func TestAnalysisConstant(t *testing.T){
+    c,_:=AnalysisConstant(testc.Constant_pool[0])
+    if (c.Type!="Methodref"){
+        t.Fatal()
+    }
+    if (c.String!=""){
+        t.Fatal()
+    }
+    if (c.Value[0]!=32||c.Value[1]!=126){
+        t.Fatal()
+    }
+    c,_=AnalysisConstant(testc.Constant_pool[49])
+    if (c.Type!="Utf8"){
+        t.Fatal()
+    }
+    if (c.String!="index"){
+        t.Fatal()
+    }
+    if (c.Value[0]!=0){
+        t.Fatal()
+    }
+    c,_=AnalysisConstant(testc.Constant_pool[16])                       //实际上是常量池第17个
+    if (c.Type!="Class"){
+        t.Fatal()
+    }
+    if (c.String!=""){
+        t.Fatal()
+    }
+    if (c.Value[0]!=159){
+        t.Fatal()
+    }
+    if string(testc.Constant_pool[c.Value[0]-1].Info)!="java/util/Map"{    //class规范常量池是从1开始的,数组从0开始,)为什么不直接减一,因为读取力求真实，文件写的是多少就是多少)(为什么读取到内存不废弃0从1开始，因为节省内存)
+        t.Fatal()
+    }
+    //读取测试class所有常量
+    for _,s:=range testc.Constant_pool{
+        cs,_ := AnalysisConstant(s)
+        cs.ToString()
+    }
+}
