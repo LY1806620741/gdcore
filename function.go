@@ -115,11 +115,11 @@ func ListJar(zipFile string) ([]string,error){
     return s,nil
 }
 //读取jar("*.jar","com/jieshao/demo/main.class")
-func ReadFromJar(zipFile string, classdest string) (*ClassFile,error) {
+func ReadFromJar(zipFile string, classdest string) (ClassFile,error) {
     //读取zip
     reader, err := zip.OpenReader(zipFile)
     if err != nil {
-        return nil,err
+        return ClassFile{},err
     }
     defer reader.Close()
     //循环每个文件
@@ -127,43 +127,43 @@ func ReadFromJar(zipFile string, classdest string) (*ClassFile,error) {
         if (file.Name==classdest){
             rc, err := file.Open()
             if err != nil {
-                return nil,err
+                return ClassFile{},err
             }
             defer rc.Close()
             class,err := ReadFormRC(rc)
             if err != nil {
-                return nil,err
+                return ClassFile{},err
             }
             return class,nil
         }
     }
-    return nil,errors.New("Error. Can't find the class")
+    return ClassFile{},errors.New("Error. Can't find the class")
 }
 //加载reader
-func ReadFormRC(rc io.ReadCloser) (*ClassFile,error){
+func ReadFormRC(rc io.ReadCloser) (ClassFile,error){
     c := ClassFile{}                //初始化内存数据结构
     bs,err:= ioutil.ReadAll(rc)     //一次读文件
     if err != nil{
-       return nil,err
+       return c,err
     }
     err = c.Load(bs)                //从[]byte读取class内容
     if err != nil{
-       return nil,err
+       return c,err
     }
-    return &c,nil                   //返回类地址
+    return c,nil                   //返回类地址
 }
 //加载文件
-func ReadFormFile(file string) (*ClassFile,error){
+func ReadFormFile(file string) (ClassFile,error){
     c := ClassFile{}                //初始化内存数据结构
     bs,err:= ioutil.ReadFile(file)  //一次读文件
     if err != nil{
-       return nil,err
+       return c,err
     }
     err = c.Load(bs)                //从[]byte读取class内容
     if err != nil{
-       return nil,err
+       return c,err
     }
-    return &c,nil                   //返回类地址
+    return c,nil                    //返回类地址
 }
 //翻译常量
 func AnalysisConstant(cp Cp_Info) (ConstantInfo,error){ 
@@ -184,19 +184,19 @@ func AnalysisConstant(cp Cp_Info) (ConstantInfo,error){
             return ConstantInfo{"String","",[]int{byte2int(cp.Info)}},nil
         case 9:                                                        //CONSTANT_Fieldref_info
            return ConstantInfo{"Fieldref","",[]int{byte2int(cp.Info[:2]),byte2int(cp.Info[2:])}},nil
-        case 10:                                                        //CONSTANT_Methodref_info
+        case 10:                                                       //CONSTANT_Methodref_info
             return ConstantInfo{"Methodref","",[]int{byte2int(cp.Info[:2]),byte2int(cp.Info[2:])}},nil
-        case 11:                                                        //CONSTANT_InterfaceMethodref_info
+        case 11:                                                       //CONSTANT_InterfaceMethodref_info
             return ConstantInfo{"InterfaceMethodref","",[]int{byte2int(cp.Info[:2]),byte2int(cp.Info[2:])}},nil
-        case 12:                                                        //CONSTANT_NameAndType_info
+        case 12:                                                       //CONSTANT_NameAndType_info
             return ConstantInfo{"NameAndType","",[]int{byte2int(cp.Info[:2]),byte2int(cp.Info[2:])}},nil
-        case 15:                                                        //CONSTANT_MethodHandle_info
+        case 15:                                                       //CONSTANT_MethodHandle_info
             return ConstantInfo{"MethodHandle","",[]int{byte2int(cp.Info[:1]),byte2int(cp.Info[1:])}},nil
-        case 16:                                                        //CONSTANT_MethodType_info
+        case 16:                                                       //CONSTANT_MethodType_info
             return ConstantInfo{"MethodType","",[]int{byte2int(cp.Info)}},nil
-        case 18:                                                        //CONSTANT_InvokeDynamic_info
+        case 18:                                                       //CONSTANT_InvokeDynamic_info
             return ConstantInfo{"InvokeDynamic","",[]int{byte2int(cp.Info[:2]),byte2int(cp.Info[2:])}},nil
-        default:                                                        //未知
+        default:                                                       //未知
     }
     return ConstantInfo{},errors.New("Error. Unknown Constant type")
 }

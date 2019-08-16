@@ -6,7 +6,7 @@ import(
     "io/ioutil"
 )
 
-var testc *ClassFile
+var testc ClassFile
 
 func init(){
     testc,_ = ReadFormFile("./testdata/Lambda.class")
@@ -32,8 +32,11 @@ func TestReaderzip(t *testing.T) {
                     if err != nil {
                         t.Fatal(err)
                     }
-                    _,err=ReadFormRC(rc)
+                    c,err:=ReadFormRC(rc)
                     if err != nil{
+                        t.Fatal(err)
+                    }
+                    if c.Access_flags==0{
                         t.Fatal(err)
                     }
                     rc.Close()
@@ -54,15 +57,21 @@ func TestListJar(t *testing.T){
 }
 //读取文件函数测试
 func TestReaderfile(t *testing.T) {
-    _,err := ReadFormFile("./testdata/Lambda.class")
+    c,err := ReadFormFile("./testdata/Lambda.class")
     if err != nil {
+        t.Fatal(err)
+    }
+    if c.Access_flags==0{
         t.Fatal(err)
     }
 }
 //读取jar包函数测试
 func TestReaderjar(t *testing.T) {
-    _,err := ReadFromJar("./testdata/data-java-jdk-1.8.0.zip","org/jd/core/test/Lambda.class")
+    c,err := ReadFromJar("./testdata/data-java-jdk-1.8.0.zip","org/jd/core/test/Lambda.class")
     if err != nil {
+        t.Fatal(err)
+    }
+    if c.Access_flags==0{
         t.Fatal(err)
     }
 }
